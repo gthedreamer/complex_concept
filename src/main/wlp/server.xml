@@ -10,6 +10,6 @@
         <tcpOptions soReuseAddr="true"/>
     </httpEndpoint>
 
-    <application name="GetStartedJava" context-root="/GetStartedJava" location="${appLocation}" type="war"/>
+    <application name="CompoundConcept" context-root="/" location="${appLocation}" type="war"/>
 
 </server>

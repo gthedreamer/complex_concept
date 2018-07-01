@@ -1,7 +1,7 @@
 ---
 applications:
- - name: GetStartedJava
+ - name: CompoundConcept
    random-route: true
-   path: target/GetStartedJava.war
+   path: target/CompoundConcept.war
    memory: 256M
    instances: 1

@@ -1,0 +1,5 @@
+application/Application.class
+wasdev/compoundconcept/ibmclient/IBMQueryClient.class
+wasdev/compoundconcept/parser/InputParser.class
+wasdev/compoundconcept/ibmclient/IBMUploadClient.class
+wasdev/compoundconcept/rest/CompundConceptRestService.class
