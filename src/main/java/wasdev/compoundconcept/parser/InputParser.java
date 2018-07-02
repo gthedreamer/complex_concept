@@ -27,32 +27,30 @@ public class InputParser {
 				FileWriter fileWriter = new FileWriter(file);
 				
 	
-				String ravi = arrSplit[i].replaceAll("<DOCID>=", "\",\"DOCID\":\"")
+				String tagsRemovedStr = arrSplit[i].replaceAll("<DOCID>=", "\",\"DOCID\":\"")
 						.replaceAll("<TITLE>=", "\",\"TITLE\":\"").replaceAll("<BODY>=", "\",\"BODY\":\"")
 						.replaceAll("\r", "").replaceAll("\n", "");
 	
-				String Lakshu = "{\"TOPICS\":\"" + ravi + "\"}";
-	//			System.out.println("Value of the splitted string::::" + Lakshu);
+				String topicOrgStr = "{\"TOPICS\":\"" + tagsRemovedStr + "\"}";
 	
 				JSONObject jsonObj = new JSONObject();
-				String topics = Lakshu.substring(Lakshu.indexOf("TOPICS\":\""), Lakshu.indexOf("\",\"DOCID\""))
+				String topics = topicOrgStr.substring(topicOrgStr.indexOf("TOPICS\":\""), topicOrgStr.indexOf("\",\"DOCID\""))
 						.replaceAll("TOPICS\":\"", "").replaceAll("&lt;", "<");;
-	//			System.out.println("Value of topics:::" + topics);
-				String docid = Lakshu.substring(Lakshu.indexOf("DOCID"), Lakshu.indexOf("\",\"TITLE\""))
+				String docid = topicOrgStr.substring(topicOrgStr.indexOf("DOCID"), topicOrgStr.indexOf("\",\"TITLE\""))
 						.replaceAll("DOCID\":\"", "").replaceAll("&lt;", "<");
-	//			System.out.println("Value of docid:::" + docid);
-				String title = Lakshu.substring(Lakshu.indexOf("TITLE"), Lakshu.indexOf("\",\"BODY\""))
+				String title = topicOrgStr.substring(topicOrgStr.indexOf("TITLE"), topicOrgStr.indexOf("\",\"BODY\""))
 						.replaceAll("TITLE\":\"", "").replaceAll("&lt;", "<");
-	//			System.out.println("Value of title:::" + title);
-				String body = Lakshu.substring(Lakshu.indexOf("BODY"), Lakshu.indexOf("\"}"))
+				String body = topicOrgStr.substring(topicOrgStr.indexOf("BODY"), topicOrgStr.indexOf("\"}"))
 						.replaceAll("BODY\":\"", "").replaceAll("&lt;", "<").replaceAll("&#3;", "");
 				
 				
 				jsonObj.put("TOPICS", topics);
 				jsonObj.put("DOCID", docid);
+				jsonObj.put("TITLE",title);
+				jsonObj.put("BODY", body);
 				jsonObj.put("CONTENT", title + " " + body);
 	
-	//			System.out.println("json to string:::" + jsonObj.toString());
+				System.out.println("json to string:::" + jsonObj.toString());
 				
 				fileWriter.write(jsonObj.toJSONString());
 				fileWriter.flush();

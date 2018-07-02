@@ -56,7 +56,7 @@ public class CompundConceptRestService extends Application {
     @GET
     @Path("/query")
     @Produces({"application/json"})
-    public String getVisitors(@QueryParam("count") long resultCount,
+    public String handleQuery(@QueryParam("count") long resultCount,
     		@QueryParam("queryString") String queryString
     		) {
 		QueryResponse queryResponse = null;

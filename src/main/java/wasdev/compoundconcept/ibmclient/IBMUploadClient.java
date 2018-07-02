@@ -12,9 +12,10 @@ public class IBMUploadClient {
 	public boolean upload(String filename) throws Exception{
 		boolean status = false;
 		Discovery discovery = new Discovery("2018-03-05");
-		discovery.setUsernameAndPassword("dca38471-c13c-44ef-85ff-88eb5a5b080d", "i2Levws58JXa");
-		String environmentId = "8b66a4b2-0274-4fcf-a407-32b3257b127f";
-		String collectionId = "aa576ab7-ee39-4c0d-a3cb-18eddc963038";
+		discovery.setUsernameAndPassword("1b26e43d-413f-4ad0-bd9f-0d5273d63b28", "vqVJFUpLES43");
+//		discovery.setEndPoint(	"https://gateway.watsonplatform.net/discovery/api");
+		String environmentId = "a5b2deb8-e89f-45a9-86ad-ac1856432547";
+		String collectionId = "498f55d5-522a-4da2-99b6-524a0e15015f";
 		AddDocumentOptions.Builder builder = new AddDocumentOptions.Builder(environmentId, collectionId);
 		InputStream documentStream = new FileInputStream(new File(filename));
 		builder.file(documentStream);
