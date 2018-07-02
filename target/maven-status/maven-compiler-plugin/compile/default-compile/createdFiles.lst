@@ -1,5 +1,7 @@
 application/Application.class
+wasdev/compoundconcept/filemanager/DayOneDocIdFileManager.class
 wasdev/compoundconcept/ibmclient/IBMQueryClient.class
+wasdev/compoundconcept/ibmclient/IBMDeleteDocumentClient.class
 wasdev/compoundconcept/parser/InputParser.class
 wasdev/compoundconcept/ibmclient/IBMUploadClient.class
 wasdev/compoundconcept/rest/CompundConceptRestService.class

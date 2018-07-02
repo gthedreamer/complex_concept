@@ -17,13 +17,18 @@ package wasdev.compoundconcept.rest;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -36,9 +41,12 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 
 import com.google.gson.Gson;
+import com.ibm.watson.developer_cloud.discovery.v1.model.DocumentAccepted;
 import com.ibm.watson.developer_cloud.discovery.v1.model.QueryResponse;
 import com.sun.jersey.multipart.FormDataParam;
 
+import wasdev.compoundconcept.filemanager.DayOneDocIdFileManager;
+import wasdev.compoundconcept.ibmclient.IBMDeleteDocumentClient;
 import wasdev.compoundconcept.ibmclient.IBMQueryClient;
 import wasdev.compoundconcept.ibmclient.IBMUploadClient;
 import wasdev.compoundconcept.parser.InputParser;
@@ -46,9 +54,11 @@ import wasdev.compoundconcept.parser.InputParser;
 @ApplicationPath("api")
 @Path("/discovery")
 public class CompundConceptRestService extends Application {
+	
+	private static final String UPLOADED_DAY_1_FILE = "day_one.txt";
+	
   /**
    * Query collection
-   * REST API example:
    * <code>
    * GET http://localhost:9080/api/discovery/query
    * </code>
@@ -85,24 +95,36 @@ public class CompundConceptRestService extends Application {
     @Path("/upload")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     public Response upload(@FormDataParam("file") InputStream uploadedInputStream) {
-
+    		int status = 500;
+    		
 		try {
 	    	String theString = IOUtils.toString(uploadedInputStream, Charset.forName("UTF-8")); 
 //		    System.out.println("uploaded file content"+theString);
-		    File file = new File("input.txt");
+		    File file = new File(UPLOADED_DAY_1_FILE);
 			if (!file.exists()) {
 				file.createNewFile();
 			}
-		    PrintWriter out = new PrintWriter("input.txt");
-		    out.write(theString);
-		    out.close();
+		    PrintWriter day1InputDoc = new PrintWriter(UPLOADED_DAY_1_FILE);
+		    day1InputDoc.write(theString);
+		    day1InputDoc.close();
 		    InputParser parser = new InputParser();
 		    int count = parser.parseToJson(file);
 		    System.out.println("Parsed docs : "+count);
 		    IBMUploadClient uploader = new IBMUploadClient();
+		    DocumentAccepted docAddResponse = null;
+		    
+		    List<String> docIdsUploaded = new ArrayList<String>();
 		    for(int fileIndex = 1;fileIndex <= count; fileIndex++ ) {
-		    	uploader.upload(fileIndex+".json");
+		    	// HIT IBM api and upload 
+		    	docAddResponse = uploader.upload(fileIndex+".json");
+		    	docIdsUploaded.add(docAddResponse.getDocumentId());
+		    	System.out.println("document uploaded id : "+docAddResponse.getDocumentId());
 		    }
+		    
+		    // Writes all uploaded document ids to file; we will use it later to delete day 1 set alone
+		    DayOneDocIdFileManager dayOneIdsFileManager = new DayOneDocIdFileManager();
+		    dayOneIdsFileManager.writeDocumentIds(docIdsUploaded);
+		    status = 200;
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -114,7 +136,39 @@ public class CompundConceptRestService extends Application {
 			e.printStackTrace();
 		}
 
-	    return Response.status(200).build();
+	    return Response.status(status).build();
     }
 
+    /**
+     * Delete Day 1 Set
+     * <code>
+     * DELETE http://localhost:9080/api/discovery/delete/dayone
+     * </code>
+     */
+      @DELETE
+      @Path("/delete/dayone")
+      @Produces({"application/json"})
+      public String deleteDayOneSet() {
+      	try {
+      		System.out.println("DELETE endpoint for deleting day 1 set");
+      		DayOneDocIdFileManager dayOneIdsFileManager = new DayOneDocIdFileManager();
+      		IBMDeleteDocumentClient ibmDeleteDocClient = new IBMDeleteDocumentClient();
+      		
+      		List<String> day1DocIds = dayOneIdsFileManager.readDocumentIds();
+      		
+      		for(String docId : day1DocIds) {
+      			ibmDeleteDocClient.deleteDocument(docId);
+      			System.out.println("Deleted document "+docId+"from IBM collection");
+      		}
+      		
+      		//Reset the docId file
+      		dayOneIdsFileManager.clearDocIds();
+  		} catch (Exception e) {
+  			// TODO Auto-generated catch block
+  			e.printStackTrace();
+  			return new Gson().toJson("{status : failed }");
+  		}
+      	
+  		return new Gson().toJson("{status : success }");
+      }
 }
