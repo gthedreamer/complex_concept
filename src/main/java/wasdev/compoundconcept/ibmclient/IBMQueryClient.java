@@ -1,5 +1,7 @@
 package wasdev.compoundconcept.ibmclient;
 
+import java.net.URLEncoder;
+
 import com.ibm.watson.developer_cloud.discovery.v1.Discovery;
 import com.ibm.watson.developer_cloud.discovery.v1.model.QueryOptions;
 import com.ibm.watson.developer_cloud.discovery.v1.model.QueryResponse;
@@ -13,7 +15,7 @@ public class IBMQueryClient {
 		String collectionId = "498f55d5-522a-4da2-99b6-524a0e15015f";
 
 		QueryOptions.Builder queryBuilder = new QueryOptions.Builder(environmentId, collectionId);
-		queryBuilder.query("CONTENT:"+queryString);
+		queryBuilder.query(mapToIBMQuery(queryString));
 		queryBuilder.highlight(true);
 		queryBuilder.count(resultLimit);
 		
@@ -21,5 +23,22 @@ public class IBMQueryClient {
 		System.out.println("queryStr = "+queryString+ "  Response = "+queryResponse);
 		return queryResponse;
 	}
-
+	
+	public String mapToIBMQuery(String rawQuery) {
+		System.out.print(rawQuery);
+		String ibmQueryFormat = null;
+		
+		ibmQueryFormat = rawQuery.replaceAll("AND", ",")
+							.replaceAll("OR", "|")
+							.replaceAll("NOT", "")
+							.replaceAll("(?i)Concepts", "enriched_CONTENT.concepts.text")
+							.replaceAll("(?i)Concept", "enriched_CONTENT.concepts.text")
+							.replaceAll("(?i)Locations", "enriched_CONTENT.entities.relevance>0.8, enriched_CONTENT.entities.type::\"Location\", enriched_CONTENT.entities.text")
+							.replaceAll("(?i)title", "TITLE")
+							.replaceAll("(?i)content", "CONTENT")
+							.replaceAll("(?i)Organizations", "enriched_CONTENT.entities.relevance>0.8,enriched_CONTENT.entities.type::\"Organization\",enriched_CONTENT.entities.text");
+		
+		System.out.println("IBM query : "+ibmQueryFormat);
+		return ibmQueryFormat;
+	}
 }

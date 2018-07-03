@@ -28,8 +28,8 @@
             $.i18n().load( {
                 en: {
                     "welcome": "Complex concept query engine",
-                    "name": "name",
-                    "enter_ur_query": "Enter your query",
+                    "name": "query",
+                    "enter_ur_query": "Enter your query and hit Enter!",
                    /*  "hello": "Hello $1", */
                     "added_to_database": "$1",
                     "database_contents": "Database contents: "
@@ -90,8 +90,16 @@
 				})
                 .done(function(data) {
                 	var queryResults = "";
+                	
+                	if(data.results.length == 0){
+                		queryResults = "<br/><br/><br/>***************     <em>NO RESULTS FOUND MATCHING YOUR QUERY!!!</em>    *******************";
+                	}
+                	
                 	for(var index = 0; index < data.results.length; index++){
-                		queryResults += "DOCID : "+ data.results[index].DOCID + "<br/>" + data.results[index].highlight.CONTENT+"<br/><br/>";
+                		queryResults += "DOCID : "+ data.results[index].DOCID + "<br/>" + 
+                						"TITLE : "+ data.results[index].TITLE + "<br/>"  +
+                						"BODY  : "+ data.results[index].BODY  +  "<br/>" +
+                						(  data.results[index].highlight.CONTENT ? ("HIGLIGHTS : "+ data.results[index].highlight.CONTENT) : "")+"<br/><br/>";
                 	}
                 	
                     $('#response').html($.i18n('added_to_database', queryResults));
