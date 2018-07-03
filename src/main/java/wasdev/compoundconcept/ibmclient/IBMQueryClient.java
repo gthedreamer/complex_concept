@@ -52,6 +52,9 @@ public class IBMQueryClient {
 		String ibmQuery = null;
 		String operandVal = null;
 		String op = null;
+		boolean valueFoundInsideCount = false;
+		
+		valueFoundInsideCount = ( rawQuery.indexOf(':') >= 0) ? true : false;
 		
 		String tempQuery = rawQuery.replaceAll("(?i)Count", "");
 		System.out.println(" count removed "+ tempQuery);
@@ -66,9 +69,10 @@ public class IBMQueryClient {
 		ibmQuery  = tempQuery.replaceAll(op, "")
 							 .replaceAll(operandVal, "")
 							 .replaceAll("(?i)Locations", "enriched_CONTENT.entities.type::\"Location\",enriched_CONTENT.entities.count "
-											+ op + operandVal + ",enriched_CONTENT.entities.text")
+											+ op + operandVal + 
+											(valueFoundInsideCount ? ",enriched_CONTENT.entities.text" : ""))
 							 .replaceAll("(?i)Organizations","enriched_CONTENT.entities.type::\"Organization\",enriched_CONTENT.entities.count "
-														+ op + operandVal+ ",enriched_CONTENT.entities.text")
+								+ op + operandVal+(valueFoundInsideCount ? ",enriched_CONTENT.entities.text" : ""))
 							 .trim();
 		
 		return ibmQuery;
