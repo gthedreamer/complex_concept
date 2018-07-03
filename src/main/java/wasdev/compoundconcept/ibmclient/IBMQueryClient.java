@@ -28,17 +28,67 @@ public class IBMQueryClient {
 		System.out.print(rawQuery);
 		String ibmQueryFormat = null;
 		
+		if(rawQuery.indexOf("Count") >= 0 ) {
+			ibmQueryFormat = handleCountOperator(rawQuery);
+		}
+		else {
 		ibmQueryFormat = rawQuery.replaceAll("AND", ",")
 							.replaceAll("OR", "|")
 							.replaceAll("NOT", "")
-							.replaceAll("(?i)Concepts", "enriched_CONTENT.concepts.text")
+							.replaceAll("(?i)Concepts", "Concept")
 							.replaceAll("(?i)Concept", "enriched_CONTENT.concepts.text")
 							.replaceAll("(?i)Locations", "enriched_CONTENT.entities.relevance>0.8, enriched_CONTENT.entities.type::\"Location\", enriched_CONTENT.entities.text")
 							.replaceAll("(?i)title", "TITLE")
 							.replaceAll("(?i)content", "CONTENT")
 							.replaceAll("(?i)Organizations", "enriched_CONTENT.entities.relevance>0.8,enriched_CONTENT.entities.type::\"Organization\",enriched_CONTENT.entities.text");
+		}
 		
 		System.out.println("IBM query : "+ibmQueryFormat);
 		return ibmQueryFormat;
+	}
+	
+	private String handleCountOperator(String rawQuery) {
+		System.out.println("handleCountOperator");
+		String ibmQuery = null;
+		String operandVal = null;
+		String op = null;
+		
+		String tempQuery = rawQuery.replaceAll("(?i)Count", "");
+		System.out.println(" count removed "+ tempQuery);
+		op = findOperator(tempQuery);
+		System.out.println("operator "+op);
+		String[] values = tempQuery.split(op,2);
+		System.out.println(values);
+		if(values.length == 2) {
+			operandVal = values[1].replaceAll(" ", "");
+		}
+		System.out.println(" operand " + operandVal);
+		ibmQuery  = tempQuery.replaceAll(op, "")
+							 .replaceAll(operandVal, "")
+							 .replaceAll("(?i)Locations", "enriched_CONTENT.entities.type::\"Location\",enriched_CONTENT.entities.count "
+											+ op + operandVal + ",enriched_CONTENT.entities.text")
+							 .replaceAll("(?i)Organizations","enriched_CONTENT.entities.type::\"Organization\",enriched_CONTENT.entities.count "
+														+ op + operandVal+ ",enriched_CONTENT.entities.text")
+							 .trim();
+		
+		return ibmQuery;
+	}
+	
+	private String findOperator(String query) {
+		String operator = null;
+		
+		if(query.indexOf(">=") >= 0) {
+			operator = ">=";
+		}else if(query.indexOf("<=") >= 0) {
+			operator = "<=";
+		}else if(query.indexOf("=") >= 0) {
+			operator = "=";
+		}else if(query.indexOf(">") >= 0) {
+			operator = ">";
+		}else if(query.indexOf("<") >= 0) {
+			operator ="<";
+		}
+		
+		return operator;
 	}
 }
