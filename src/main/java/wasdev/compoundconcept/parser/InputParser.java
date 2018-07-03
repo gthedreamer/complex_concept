@@ -16,9 +16,9 @@ public class InputParser {
 			System.out.println("Value of the file read:::" + str);
 			System.out.println("\n\n\n");
 	
-			String[] arrSplit = str.split("<TOPICS>=");
+			String[] arrSplit = str.split("<DOCID>=");
 			int length = arrSplit.length - 1;
-			System.out.println("Total number of docs received in txt" + length);
+			System.out.println("Total number of docs received in txt " + length);
 	
 			for (int i = 1; i < arrSplit.length; i++) {
 				
@@ -27,22 +27,30 @@ public class InputParser {
 				FileWriter fileWriter = new FileWriter(file);
 				
 	
-				String tagsRemovedStr = arrSplit[i].replaceAll("<DOCID>=", "\",\"DOCID\":\"")
+				String tagsRemovedStr = arrSplit[i].replaceAll("<TOPICS>=", "\",\"TOPICS\":\"")
 						.replaceAll("<TITLE>=", "\",\"TITLE\":\"").replaceAll("<BODY>=", "\",\"BODY\":\"")
 						.replaceAll("\r", "").replaceAll("\n", "");
 	
-				String topicOrgStr = "{\"TOPICS\":\"" + tagsRemovedStr + "\"}";
+				String topicOrgStr = "{\"DOCID\":\"" + tagsRemovedStr + "\"}";
 	
 				JSONObject jsonObj = new JSONObject();
-				String topics = topicOrgStr.substring(topicOrgStr.indexOf("TOPICS\":\""), topicOrgStr.indexOf("\",\"DOCID\""))
-						.replaceAll("TOPICS\":\"", "").replaceAll("&lt;", "<");;
+				String topics = null;
+				String body;
+				if(topicOrgStr.indexOf("TOPICS\":\"") >= 0) {
+					topics = topicOrgStr.substring(topicOrgStr.indexOf("TOPICS"), topicOrgStr.indexOf("\"}"))
+							.replaceAll("TOPICS\":\"", "").replaceAll("&lt;", "<");
+					body = topicOrgStr.substring(topicOrgStr.indexOf("BODY"), topicOrgStr.indexOf("\",\"TOPICS\""))
+							.replaceAll("BODY\":\"", "").replaceAll("&lt;", "<").replaceAll("&#3;", "");
+				}
+				else {
+					body = topicOrgStr.substring(topicOrgStr.indexOf("BODY"), topicOrgStr.indexOf("\"}"))
+							.replaceAll("BODY\":\"", "").replaceAll("&lt;", "<").replaceAll("&#3;", "");
+				}
+				
 				String docid = topicOrgStr.substring(topicOrgStr.indexOf("DOCID"), topicOrgStr.indexOf("\",\"TITLE\""))
 						.replaceAll("DOCID\":\"", "").replaceAll("&lt;", "<");
 				String title = topicOrgStr.substring(topicOrgStr.indexOf("TITLE"), topicOrgStr.indexOf("\",\"BODY\""))
 						.replaceAll("TITLE\":\"", "").replaceAll("&lt;", "<");
-				String body = topicOrgStr.substring(topicOrgStr.indexOf("BODY"), topicOrgStr.indexOf("\"}"))
-						.replaceAll("BODY\":\"", "").replaceAll("&lt;", "<").replaceAll("&#3;", "");
-				
 				
 				jsonObj.put("TOPICS", topics);
 				jsonObj.put("DOCID", docid);
@@ -66,4 +74,14 @@ public class InputParser {
 		
 		return count;
 	}
+	
+//	public static void main( String[] args ) {
+//		InputParser parser = new InputParser();
+//		try {
+//			parser.parseToJson(new File("/Users/gpandian/Personal/TC/IBM_CompoundInterest/docs/docs_mini.txt"));
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//	}
 }
