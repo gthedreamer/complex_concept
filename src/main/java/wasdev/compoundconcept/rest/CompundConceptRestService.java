@@ -123,7 +123,7 @@ public class CompundConceptRestService extends Application {
 		    
 		    // Writes all uploaded document ids to file; we will use it later to delete day 1 set alone
 		    DayOneDocIdFileManager dayOneIdsFileManager = new DayOneDocIdFileManager();
-		    dayOneIdsFileManager.writeDocumentIds(docIdsUploaded);
+		    dayOneIdsFileManager.appendDocumentIdsToFile(docIdsUploaded);
 		    status = 200;
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block

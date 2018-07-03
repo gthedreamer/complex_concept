@@ -1,15 +1,14 @@
 package wasdev.compoundconcept.filemanager;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.ibm.watson.developer_cloud.discovery.v1.model.DocumentAccepted;
 
 public class DayOneDocIdFileManager {
 	
@@ -17,40 +16,63 @@ public class DayOneDocIdFileManager {
 	
 	public List<String> readDocumentIds() {
 		List<String> docIds = new ArrayList<String>();
+		FileReader fileReader = null;
+		BufferedReader bufferedReader = null;
 		
 		try {
 			File file = new File(DAY_1_DOC_ID_LIST_FILE);
-			FileReader fileReader = new FileReader(file);
-			BufferedReader bufferedReader = new BufferedReader(fileReader);
+			fileReader = new FileReader(file);
+			bufferedReader = new BufferedReader(fileReader);
 			StringBuffer stringBuffer = new StringBuffer();
 			String line;
 			while ((line = bufferedReader.readLine()) != null) {
 				docIds.add(line);
 				stringBuffer.append(line+"\n");
 			}
-			fileReader.close();
+
 			System.out.println(stringBuffer.toString());
 		} catch (IOException e) {
 			e.printStackTrace();
+		}finally {
+			try {
+				fileReader.close();
+				bufferedReader.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		
 		return docIds;
 	}
 	
-	public boolean writeDocumentIds(List<String> docIds){
+	public boolean appendDocumentIdsToFile(List<String> docIds){
 		boolean status = false;
-		
+
+	    FileWriter docIdFileWriter = null;
+	    BufferedWriter day1DocIdBuffWriter = null;
+	    
 		try {
 		    // Append contents to the docId file so that we can use it later to delete day 1 set alone
-		    PrintWriter day1DocIdsFile = new PrintWriter(new FileOutputStream(DAY_1_DOC_ID_LIST_FILE),true);
+		    docIdFileWriter = new FileWriter(DAY_1_DOC_ID_LIST_FILE,true);
+		    day1DocIdBuffWriter = new BufferedWriter(docIdFileWriter);
+		    
 		    for(String docId : docIds ) {
-		    	day1DocIdsFile.append(docId+"\n");
-		    	System.out.println("document id : "+docId);
+		    	day1DocIdBuffWriter.write(docId+"\n");
+		    	System.out.println("Writing document id to file : "+docId);
 		    }
-		    day1DocIdsFile.close();
 		    status = true;
 		}catch(Exception e) {
 			e.printStackTrace();
+		}finally {
+		    try {
+				day1DocIdBuffWriter.close();
+			    docIdFileWriter.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
 		}
 		
 		return status;
