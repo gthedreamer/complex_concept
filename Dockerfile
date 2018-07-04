@@ -8,7 +8,7 @@ EXPOSE 9080
 ## Running the container locally
 # mvn clean install
 # docker build -t compoundconcept:latest .
-# docker run -d --name myjavacontainer getstartedjava
+# docker run -d --name myjavacontainer compoundconcept
 # docker run -p 9080:9080 --name myjavacontainer compoundconcept
 # Visit http://localhost:9080/
 
